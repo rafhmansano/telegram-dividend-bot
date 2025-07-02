@@ -39,26 +39,26 @@ from flask import Flask, Response
 # ---------------------- Configuração dos ativos ---------------------- #
 ASSETS: Dict[str, Tuple[float, float]] = {
     # ticker: (fair_value, margem_de_seguranca)
-    "BBAS3": (23.39, 0.20),
-    "BRSR6": (10.04, 0.20),
-    "BRAP4": (18.68, 0.20),
-    "ITSA4": (10.02, 0.20),
-    "BBSE3": (31.79, 0.20),
-    "CSMG3": (20.87, 0.20),
-    "SAPR11": (27.05, 0.15),
-    "LEVE3": (33.63, 0.20),
-    "CMIG4": (10.62, 0.20),
-    "CPLE6": (7.39, 0.20),
-    "TAEE11": (35.11, 0.15),
-    "ISAE4": (22.53, 0.20),
-    "VIVT3": (21.49, 0.20),
+    "BBAS3": (20.60, 0.20),
+    "BRSR6": (8.00, 0.20),
+    "BRAP4": (19.00, 0.20),
+    "ITSA4": (10.60, 0.20),
+    "BBSE3": (47.06, 0.20),
+    "CSMG3": (22.50, 0.20),
+    "SAPR11": (23.30, 0.15),
+    "LEVE3": (33.50, 0.20),
+    "CMIG4": (10.26, 0.20),
+    "CPLE6": (7.10, 0.20),
+    "TAEE11": (26.50, 0.15),
+    "ISAE4": (30.6, 0.20),
+    "VIVT3": (18.40, 0.20),
     # "TFLO": (50.53, 0.10),  # ETF USD — removido se usar somente B3
-    "ALZR11": (10.88, 0.15),
-    "HGLG11": (174.12, 0.15),
-    "IRDM11": (85.42, 0.15),
-    "HGCR11": (102.50, 0.15),
-    "KNCR11": (103.03, 0.15),
-    "XPML11": (114.59, 0.15),
+    "ALZR11": (12.00, 0.15),
+    "HGLG11": (186.00, 0.15),
+    "IRDM11": (91.50, 0.15),
+    "HGCR11": (118.00, 0.15),
+    "KNCR11": (133.00, 0.15),
+    "XPML11": (145.0, 0.15),
 }
 
 # ------------------------ Chaves de ambiente ------------------------ #
@@ -125,13 +125,18 @@ def check_assets() -> str:
     for tk, (fv, mos) in ASSETS.items():
         try:
             price = get_price(tk)
-            trigger = fv * (1 - mos)
-            print(f"{tk}: R$ {price:.2f} | gatilho R$ {trigger:.2f}")
-            if price <= trigger:
-                msg = (
-                    f"⏰ {dt_now} — ALERTA DE COMPRA\n"
-                    f"{tk} cotado a R$ {price:.2f} (FV {fv:.2f}, MOS {mos*100:.0f}%)"
-                )
+trigger = fv * (1 - mos)
+
+gap_pct = (trigger - price) / trigger * 100          # ← NOVA LINHA
+print(f"{tk}: R$ {price:,.2f} | gatilho R$ {trigger:,.2f} | gap {gap_pct:+.1f}%")  # opcional
+
+if price <= trigger:
+    msg = (
+        f"🛎️ {dt_now} — ALERTA DE COMPRA\n"
+        f"{tk} cotado a R$ {price:.2f} "
+        f"(gatilho R$ {trigger:.2f}, "
+        f"gap {gap_pct:.1f}%, MOS {mos*100:.0f}%)"
+    )
                 send_alert(msg)
                 triggered.append(tk)
         except Exception as exc:
