@@ -1,20 +1,3 @@
-# telegram_alert_bot.py – versão FINAL (Flask + múltiplas APIs)
-"""
-Bot de alertas de compra para **TODOS os ativos** da carteira (ações, FIIs, ETF).
-
-• Exposto como servidor Flask → qualquer GET na raiz executa check_assets() e
-  devolve "OK". Isso gera a URL (web view) necessária para cron‑job.org.
-• Busca preço em **duas APIs**: brapi.dev (Brasil) e Yahoo Finance direto,
-  usando fallback automático.
-• Envia alerta ao Telegram quando Preço ≤ Fair Value × (1 – MOS).
-
-Requisitos (Replit Starter):
-  pip install flask requests
-
-Variáveis de ambiente no Replit › Secrets:
-  TELEGRAM_TOKEN – token do BotFather
-  CHAT_ID        – id do chat / grupo
-"""
 
 import sys
 
