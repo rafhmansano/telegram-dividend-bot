@@ -158,5 +158,3 @@ if __name__ == "__main__":
     # Roda uma checagem única se chamar: python telegram_alert_bot.py
     print("Execução stand‑alone…")
     print(check_assets())
-
-add bot code
