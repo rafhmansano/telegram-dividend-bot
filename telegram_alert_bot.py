@@ -14,20 +14,6 @@ if not TELEGRAM_TOKEN or not CHAT_ID:
     raise RuntimeError("Defina TELEGRAM_TOKEN e CHAT_ID em Secrets!")
 
 import sys
-
-if __name__ == "__main__":
-    if "web" in sys.argv:
-        from flask import Flask
-        app = Flask(__name__)
-
-        @app.route("/")
-        def run_job():
-            check_assets()
-            return "OK", 200
-
-        app.run(host="0.0.0.0", port=81)
-  
-
 import os
 import datetime as dt
 import time
@@ -145,7 +131,7 @@ def check_assets() -> str:
             print(f"Erro {tk}: {exc}")
 
             time.sleep(0.4)  # Polidez com as APIs
-        return ", ".join(triggered) if triggered else "Sem alertas"
+    return ", ".join(triggered) if triggered else "Sem alertas"
 
 # --------------------------- Flask app ------------------------------- #
 app = Flask(__name__)
