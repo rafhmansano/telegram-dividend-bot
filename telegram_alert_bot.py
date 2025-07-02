@@ -26,10 +26,7 @@ if __name__ == "__main__":
             return "OK", 200
 
         app.run(host="0.0.0.0", port=81)
-    else:
-       
-
-
+  
 
 import os
 import datetime as dt
