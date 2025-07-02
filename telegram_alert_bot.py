@@ -123,29 +123,29 @@ def check_assets() -> str:
     dt_now = dt.datetime.now().strftime("%d/%m/%Y %H:%M")
     triggered: list[str] = []
     for tk, (fv, mos) in ASSETS.items():
-    try:
-        price = get_price(tk)
-        trigger = fv * (1 - mos)
+        try:
+            price = get_price(tk)
+            trigger = fv * (1 - mos)
 
-        gap_pct = (trigger - price) / trigger * 100      # novo
-        print(f"{tk}: R$ {price:.2f} | gatilho R$ {trigger:.2f} "
-              f"| gap {gap_pct:+.1f}%")                  # opcional
+            gap_pct = (trigger - price) / trigger * 100      # novo
+            print(f"{tk}: R$ {price:.2f} | gatilho R$ {trigger:.2f} "
+                  f"| gap {gap_pct:+.1f}%")                  # opcional
 
-        if price <= trigger:
-            msg = (
-                f"🛎️ {dt_now} — ALERTA DE COMPRA\n"
-                f"{tk} cotado a R$ {price:.2f} "
-                f"(gatilho R$ {trigger:.2f}, "
-                f"gap {gap_pct:.1f}%, MOS {mos*100:.0f}%)"
-            )
-            send_alert(msg)
-            triggered.append(tk)
+            if price <= trigger:
+                msg = (
+                    f"🛎️ {dt_now} — ALERTA DE COMPRA\n"
+                    f"{tk} cotado a R$ {price:.2f} "
+                    f"(gatilho R$ {trigger:.2f}, "
+                    f"gap {gap_pct:.1f}%, MOS {mos*100:.0f}%)"
+                )
+                send_alert(msg)
+                triggered.append(tk)
 
-    except Exception as exc:
-        print(f"Erro {tk}: {exc}")
+        except Exception as exc:
+            print(f"Erro {tk}: {exc}")
 
-        time.sleep(0.4)  # Polidez com as APIs
-    return ", ".join(triggered) if triggered else "Sem alertas"
+            time.sleep(0.4)  # Polidez com as APIs
+        return ", ".join(triggered) if triggered else "Sem alertas"
 
 # --------------------------- Flask app ------------------------------- #
 app = Flask(__name__)
