@@ -1,3 +1,17 @@
+from __future__ import annotations
+
+import os
+import datetime as dt
+import time
+from typing import Dict, Tuple, Optional
+
+import requests
+from flask import Flask, Response
+
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
+if not TELEGRAM_TOKEN or not CHAT_ID:
+    raise RuntimeError("Defina TELEGRAM_TOKEN e CHAT_ID em Secrets!")
 
 import sys
 
