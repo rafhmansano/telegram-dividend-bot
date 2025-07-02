@@ -22,4 +22,3 @@ jobs:
           CHAT_ID:        ${{ secrets.CHAT_ID }}
         run: python telegram_alert_bot.py
 
-Add workflow
