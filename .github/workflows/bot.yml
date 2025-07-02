@@ -1,0 +1,25 @@
+name: Dividend Alert Bot
+
+on:
+  schedule:
+    - cron: '0,30 13-21 * * 1-5'   # 10-18h BRT, de 30 em 30 min
+  workflow_dispatch:               # botão “Run workflow” manual
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install deps
+        run: pip install requests
+      - name: Run bot
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID:        ${{ secrets.CHAT_ID }}
+        run: python telegram_alert_bot.py
+
+Add workflow
