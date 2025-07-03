@@ -4,31 +4,31 @@ on:
   schedule:
     # 10:00, 13:00 e 16:00 BRT correspondem a 13:00, 16:00 e 19:00 UTC
     - cron: '0 13,16,19 * * 1-5'
-  workflow_dispatch:          # botão “Run workflow” manual
+  workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    env:                       # <-- vale para todos os steps
-      TZ: America/Sao_Paulo    # relógio do processo em BRT
+
+    env:  # 🌐 Variáveis globais de ambiente
+      TZ: America/Sao_Paulo
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      CHAT_ID:        ${{ secrets.CHAT_ID }}
+      GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout do código
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Install deps
+      - name: Instalar dependências
         run: |
-          python -m pip install --upgrade pip
-          pip install requests flask
           pip install --upgrade pip
-          pip install requests pandas gspread google-auth
+          pip install requests flask pandas gspread google-auth
 
-      - name: Run bot
-        env:
-  TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-  CHAT_ID:        ${{ secrets.CHAT_ID }}
-  GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+      - name: Rodar o bot de alerta
         run: python telegram_alert_bot.py
