@@ -3,32 +3,33 @@ import os
 import datetime as dt
 import time
 import requests
+import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
 from typing import Dict, Tuple, Optional
-from zoneinfo import ZoneInfo  # ✅ Substituto nativo
-brt = ZoneInfo("America/Sao_Paulo")  # ✅ Timezone BRT
+from zoneinfo import ZoneInfo
 
-# ------------------------ Config ------------------------ #
-ASSETS: Dict[str, Tuple[float, float]] = {
-    "BBAS3": (20.60, 0.20),
-    "BRSR6": (8.00, 0.20),
-    "BRAP4": (19.00, 0.20),
-    "ITSA4": (10.60, 0.20),
-    "BBSE3": (47.06, 0.20),
-    "CSMG3": (22.50, 0.20),
-    "SAPR11": (23.30, 0.15),
-    "LEVE3": (33.50, 0.20),
-    "CMIG4": (10.26, 0.20),
-    "CPLE6": (7.10, 0.20),
-    "TAEE11": (26.50, 0.15),
-    "ISAE4": (30.6, 0.20),
-    "VIVT3": (18.40, 0.20),
-    "ALZR11": (12.00, 0.15),
-    "HGLG11": (186.00, 0.15),
-    "IRDM11": (91.50, 0.15),
-    "HGCR11": (118.00, 0.15),
-    "KNCR11": (133.00, 0.15),
-    "XPML11": (145.0, 0.15),
-}
+brt = ZoneInfo("America/Sao_Paulo")
+
+# ------------------------ Planilha ------------------------ #
+CRED_FILE = "bot-credenciais.json"  # Substitua pelo nome do seu arquivo JSON
+SCOPE = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/drive"
+]
+SPREADSHEET_NAME = "Nome da sua planilha"
+SHEET_NAME = "Nome da aba"
+
+def carregar_ativos() -> Dict[str, Tuple[float, float]]:
+    creds = Credentials.from_service_account_file(CRED_FILE, scopes=SCOPE)
+    gc = gspread.authorize(creds)
+    sheet = gc.open(SPREADSHEET_NAME).worksheet(SHEET_NAME)
+    data = sheet.get_all_records()
+    ativos = {
+        row["Ticker"].strip(): (float(row["FairValue"]), float(row["MOS"]))
+        for row in data
+    }
+    return ativos
 
 # ------------------------ Environment ------------------------ #
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -88,10 +89,11 @@ def get_price(ticker: str) -> float:
 # ------------------------ Lógica principal ------------------------ #
 def check_assets() -> str:
     dt_now = dt.datetime.now(brt).strftime("%d/%m/%Y %H:%M")
+    ativos = carregar_ativos()
     triggered: list[str] = []
     log("Iniciando checagem de ativos...")
 
-    for tk, (fv, mos) in ASSETS.items():
+    for tk, (fv, mos) in ativos.items():
         try:
             price = get_price(tk)
             trigger = fv * (1 - mos)
@@ -101,7 +103,7 @@ def check_assets() -> str:
 
             if price <= trigger:
                 msg = (
-                    f"🛎️ {dt_now} — ALERTA DE COMPRA\n"
+                    f"🕎️ {dt_now} — ALERTA DE COMPRA\n"
                     f"{tk} cotado a R$ {price:.2f} "
                     f"(gatilho R$ {trigger:.2f}, "
                     f"gap {gap_pct:.1f}%, MOS {mos*100:.0f}%)"
