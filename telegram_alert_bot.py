@@ -13,9 +13,8 @@ brt = ZoneInfo("America/Sao_Paulo")
 
 # ------------------------ Planilha ------------------------ #
 import json
-cred_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
-creds = Credentials.from_service_account_info(cred_dict, scopes=SCOPE)
-
+    cred_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+    creds = Credentials.from_service_account_info(cred_dict, scopes=SCOPE)
     gc = gspread.authorize(creds)
     sheet = gc.open(SPREADSHEET_NAME).worksheet(SHEET_NAME)
     data = sheet.get_all_records()
