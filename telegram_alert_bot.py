@@ -5,6 +5,7 @@ import time
 import requests
 import pandas as pd
 import gspread
+import json
 from google.oauth2.service_account import Credentials
 from typing import Dict, Tuple, Optional
 from zoneinfo import ZoneInfo
@@ -12,7 +13,14 @@ from zoneinfo import ZoneInfo
 brt = ZoneInfo("America/Sao_Paulo")
 
 # ------------------------ Planilha ------------------------ #
-import json
+SCOPE = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/drive"
+]
+SPREADSHEET_NAME = "Nome da sua planilha"
+SHEET_NAME = "Nome da aba"
+
+def carregar_ativos() -> Dict[str, Tuple[float, float]]:
     cred_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
     creds = Credentials.from_service_account_info(cred_dict, scopes=SCOPE)
     gc = gspread.authorize(creds)
