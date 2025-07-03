@@ -4,8 +4,8 @@ import datetime as dt
 import time
 import requests
 from typing import Dict, Tuple, Optional
-from pytz import timezone  # ✅ NOVO
-brt = timezone("America/Sao_Paulo")  # ✅ NOVO
+from zoneinfo import ZoneInfo  # ✅ Substituto nativo
+brt = ZoneInfo("America/Sao_Paulo")  # ✅ Timezone BRT
 
 # ------------------------ Config ------------------------ #
 ASSETS: Dict[str, Tuple[float, float]] = {
@@ -40,7 +40,7 @@ if not TELEGRAM_TOKEN or not CHAT_ID:
 
 # ------------------------ Utils ------------------------ #
 def log(msg: str) -> None:
-    ts = dt.datetime.now(brt).strftime("%Y-%m-%d %H:%M:%S")  # ✅ ALTERADO
+    ts = dt.datetime.now(brt).strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{ts}] {msg}")
 
 def send_alert(text: str) -> None:
@@ -87,7 +87,7 @@ def get_price(ticker: str) -> float:
 
 # ------------------------ Lógica principal ------------------------ #
 def check_assets() -> str:
-    dt_now = dt.datetime.now(brt).strftime("%d/%m/%Y %H:%M")  # ✅ ALTERADO
+    dt_now = dt.datetime.now(brt).strftime("%d/%m/%Y %H:%M")
     triggered: list[str] = []
     log("Iniciando checagem de ativos...")
 
