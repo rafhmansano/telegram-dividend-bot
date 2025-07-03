@@ -38,7 +38,9 @@ if not TELEGRAM_TOKEN or not CHAT_ID:
 
 # ------------------------ Utils ------------------------ #
 def log(msg: str) -> None:
-    ts = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    ts = from pytz import timezone
+brt = timezone("America/Sao_Paulo")
+dt_now = dt.datetime.now(brt).strftime("%d/%m/%Y %H:%M")
     print(f"[{ts}] {msg}")
 
 def send_alert(text: str) -> None:
