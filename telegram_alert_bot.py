@@ -17,8 +17,8 @@ SCOPE = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
 ]
-SPREADSHEET_NAME = "Nome da sua planilha"
-SHEET_NAME = "Nome da aba"
+SPREADSHEET_NAME = "Valuation_ativos"
+SHEET_NAME = "Ativos"
 
 def carregar_ativos() -> Dict[str, Tuple[float, float]]:
     cred_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
