@@ -4,6 +4,8 @@ import datetime as dt
 import time
 import requests
 from typing import Dict, Tuple, Optional
+from pytz import timezone  # ✅ NOVO
+brt = timezone("America/Sao_Paulo")  # ✅ NOVO
 
 # ------------------------ Config ------------------------ #
 ASSETS: Dict[str, Tuple[float, float]] = {
@@ -38,9 +40,7 @@ if not TELEGRAM_TOKEN or not CHAT_ID:
 
 # ------------------------ Utils ------------------------ #
 def log(msg: str) -> None:
-    ts = from pytz import timezone
-brt = timezone("America/Sao_Paulo")
-dt_now = dt.datetime.now(brt).strftime("%d/%m/%Y %H:%M")
+    ts = dt.datetime.now(brt).strftime("%Y-%m-%d %H:%M:%S")  # ✅ ALTERADO
     print(f"[{ts}] {msg}")
 
 def send_alert(text: str) -> None:
@@ -87,7 +87,7 @@ def get_price(ticker: str) -> float:
 
 # ------------------------ Lógica principal ------------------------ #
 def check_assets() -> str:
-    dt_now = dt.datetime.now().strftime("%d/%m/%Y %H:%M")
+    dt_now = dt.datetime.now(brt).strftime("%d/%m/%Y %H:%M")  # ✅ ALTERADO
     triggered: list[str] = []
     log("Iniciando checagem de ativos...")
 
@@ -113,7 +113,7 @@ def check_assets() -> str:
             err_msg = f"Erro ao verificar {tk}: {exc}"
             log(err_msg)
             send_alert(f"⚠️ {err_msg}")
-            time.sleep(0.5)  # Evita bombardeio de requisições
+            time.sleep(0.5)
 
     summary = ", ".join(triggered) if triggered else "Sem alertas de compra."
     log(f"Checagem concluída. Resultado: {summary}")
