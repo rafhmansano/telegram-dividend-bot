@@ -12,16 +12,10 @@ from zoneinfo import ZoneInfo
 brt = ZoneInfo("America/Sao_Paulo")
 
 # ------------------------ Planilha ------------------------ #
-CRED_FILE = "bot-credenciais.json"  # Substitua pelo nome do seu arquivo JSON
-SCOPE = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive"
-]
-SPREADSHEET_NAME = "Nome da sua planilha"
-SHEET_NAME = "Nome da aba"
+import json
+cred_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+creds = Credentials.from_service_account_info(cred_dict, scopes=SCOPE)
 
-def carregar_ativos() -> Dict[str, Tuple[float, float]]:
-    creds = Credentials.from_service_account_file(CRED_FILE, scopes=SCOPE)
     gc = gspread.authorize(creds)
     sheet = gc.open(SPREADSHEET_NAME).worksheet(SHEET_NAME)
     data = sheet.get_all_records()
