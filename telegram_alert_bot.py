@@ -20,8 +20,8 @@ SPREADSHEET_NAME = "Valuation_ativos"
 SHEET_NAME = "Ativos"
 
 def limpar_numero_br(valor: float | str) -> float:
-    if isinstance(valor, (int, float)):
-        return float(valor)
+    if isinstance(valor, float) or isinstance(valor, int):
+        return float(valor)  # já é número real
     valor = str(valor).strip()
     valor = valor.replace('%', '')
     
