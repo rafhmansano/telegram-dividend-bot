@@ -5,7 +5,6 @@ import time
 import requests
 import gspread
 import json
-import re
 from google.oauth2.service_account import Credentials
 from typing import Dict, Tuple, Optional
 from zoneinfo import ZoneInfo
@@ -25,12 +24,16 @@ def limpar_numero_br(valor: float | str) -> float:
         return float(valor)
     valor = str(valor).strip()
     valor = valor.replace('%', '')
-    valor = valor.replace('.', '')
-    valor = valor.replace(',', '.')
+    
+    # Corrige "." de milhar e "," de decimal
+    if ',' in valor and '.' in valor:
+        valor = valor.replace('.', '').replace(',', '.')
+    elif ',' in valor:
+        valor = valor.replace(',', '.')
     return float(valor)
 
 def carregar_ativos() -> Dict[str, Tuple[float, float]]:
-    print("=== VERSÃO CORRIGIDA ===")
+    print("=== VERSÃO FINAL ===")
     cred_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
     creds = Credentials.from_service_account_info(cred_dict, scopes=SCOPE)
     gc = gspread.authorize(creds)
@@ -43,7 +46,7 @@ def carregar_ativos() -> Dict[str, Tuple[float, float]]:
             ticker = str(row["Ticker"]).strip()
             fair_value = limpar_numero_br(row["FairValue"])
             mos = limpar_numero_br(row["MOS"])
-            if mos > 1:  # trata caso venha 15 → 0.15
+            if mos > 1:  # Trata 15 como 0.15
                 mos = mos / 100
             ativos[ticker] = (fair_value, mos)
         except Exception as e:
