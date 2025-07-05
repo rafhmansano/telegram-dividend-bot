@@ -27,10 +27,18 @@ def carregar_ativos() -> Dict[str, Tuple[float, float]]:
     gc = gspread.authorize(creds)
     sheet = gc.open(SPREADSHEET_NAME).worksheet(SHEET_NAME)
     data = sheet.get_all_records()
-    ativos = {
-        row["Ticker"].strip(): (float(row["FairValue"]), float(row["MOS"]))
-        for row in data
-    }
+
+    ativos = {}
+    for row in data:
+        try:
+            ticker = row["Ticker"].strip()
+            fair_value_str = str(row["FairValue"]).replace(",", ".")
+            mos_str = str(row["MOS"]).replace(",", ".")
+            fair_value = float(fair_value_str)
+            mos = float(mos_str)
+            ativos[ticker] = (fair_value, mos)
+        except Exception as e:
+            log(f"Erro ao processar linha: {row} - {e}")
     return ativos
 
 # ------------------------ Environment ------------------------ #
