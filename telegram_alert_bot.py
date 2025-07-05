@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 import os
 import datetime as dt
@@ -105,9 +106,9 @@ def check_assets() -> str:
             if price <= trigger:
                 msg = (
                     f"🕎️ {dt_now} — ALERTA DE COMPRA\n"
-                    f"{tk} cotado a R$ {price:.2f} "
-                    f"(gatilho R$ {trigger:.2f}, "
-                    f"gap {gap_pct:.1f}%, MOS {mos*100:.0f}%)"
+                    f"{tk} cotado a R$ {price:.2f}".replace('.', ',') + " "
+                    f"(gatilho R$ {trigger:.2f}".replace('.', ',') + ", "
+                    f"gap {gap_pct:.1f}%".replace('.', ',') + f", MOS {mos*100:.0f}%)"
                 )
                 send_alert(msg)
                 triggered.append(tk)
