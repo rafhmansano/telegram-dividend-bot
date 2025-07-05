@@ -41,7 +41,7 @@ def carregar_ativos() -> Dict[str, Tuple[float, float]]:
         try:
             ticker = row["Ticker"].strip()
             fair_value = limpar_numero_br(str(row["FairValue"]))
-            mos = limpar_numero_br(str(row["MOS"]))
+            mos = limpar_numero_br(str(row["MOS"])) / 100  # conversão correta da margem
             ativos[ticker] = (fair_value, mos)
         except Exception as e:
             log(f"Erro ao processar linha: {row} - {e}")
