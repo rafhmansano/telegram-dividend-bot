@@ -32,8 +32,8 @@ def carregar_ativos() -> Dict[str, Tuple[float, float]]:
     for row in data:
         try:
             ticker = row["Ticker"].strip()
-            fair_value_str = str(row["FairValue"]).replace(",", ".")
-            mos_str = str(row["MOS"]).replace(",", ".")
+            fair_value_str = str(row["FairValue"]).replace(".", "").replace(",", ".")
+            mos_str = str(row["MOS"]).replace(".", "").replace(",", ".")
             fair_value = float(fair_value_str)
             mos = float(mos_str)
             ativos[ticker] = (fair_value, mos)
