@@ -7,6 +7,7 @@ import requests
 import pandas as pd
 import gspread
 import json
+import re
 from google.oauth2.service_account import Credentials
 from typing import Dict, Tuple, Optional
 from zoneinfo import ZoneInfo
@@ -22,6 +23,13 @@ SPREADSHEET_NAME = "Valuation_ativos"
 SHEET_NAME = "Ativos"
 
 def carregar_ativos() -> Dict[str, Tuple[float, float]]:
+    def limpar_numero_br(valor_str: str) -> float:
+        clean = re.sub(r"[^0-9,.-]", "", valor_str)
+        if clean.count('-') > 1:
+            clean = '-' + clean.replace('-', '')
+        clean = clean.replace('.', '').replace(',', '.')
+        return float(clean)
+
     cred_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
     creds = Credentials.from_service_account_info(cred_dict, scopes=SCOPE)
     gc = gspread.authorize(creds)
@@ -32,10 +40,8 @@ def carregar_ativos() -> Dict[str, Tuple[float, float]]:
     for row in data:
         try:
             ticker = row["Ticker"].strip()
-            fair_value_str = str(row["FairValue"]).replace(".", "").replace(",", ".")
-            mos_str = str(row["MOS"]).replace(".", "").replace(",", ".")
-            fair_value = float(fair_value_str)
-            mos = float(mos_str)
+            fair_value = limpar_numero_br(str(row["FairValue"]))
+            mos = limpar_numero_br(str(row["MOS"]))
             ativos[ticker] = (fair_value, mos)
         except Exception as e:
             log(f"Erro ao processar linha: {row} - {e}")
