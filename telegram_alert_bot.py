@@ -4,7 +4,6 @@ import os
 import datetime as dt
 import time
 import requests
-import pandas as pd
 import gspread
 import json
 import re
@@ -22,16 +21,18 @@ SCOPE = [
 SPREADSHEET_NAME = "Valuation_ativos"
 SHEET_NAME = "Ativos"
 
-def carregar_ativos() -> Dict[str, Tuple[float, float]]:
-    def limpar_numero_br(valor: float | str) -> float:
-        if isinstance(valor, (int, float)):
-            return float(valor)
-        clean = re.sub(r"[^0-9,.-]", "", valor)
-        if clean.count('-') > 1:
-            clean = '-' + clean.replace('-', '')
-        clean = clean.replace('.', '').replace(',', '.')
-        return float(clean)
+def limpar_numero_br(valor: float | str) -> float:
+    if isinstance(valor, (int, float)):
+        return float(valor)
+    valor = str(valor).strip()
+    valor = valor.replace(',', '.')                # vírgula → ponto
+    valor = re.sub(r'[^0-9.\-]', '', valor)        # remove ruídos
+    if valor.count('.') > 1:                       # corrige múltiplos pontos
+        first, *rest = valor.split('.')
+        valor = first + '.' + ''.join(rest)
+    return float(valor)
 
+def carregar_ativos() -> Dict[str, Tuple[float, float]]:
     cred_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
     creds = Credentials.from_service_account_info(cred_dict, scopes=SCOPE)
     gc = gspread.authorize(creds)
@@ -41,22 +42,20 @@ def carregar_ativos() -> Dict[str, Tuple[float, float]]:
     ativos = {}
     for row in data:
         try:
-            ticker = row["Ticker"].strip()
+            ticker = str(row["Ticker"]).strip()
             fair_value = limpar_numero_br(row["FairValue"])
-            mos_raw = limpar_numero_br(row["MOS"])
-            mos = mos_raw if mos_raw < 1 else mos_raw / 100  # ✅ tratamento robusto
+            mos = limpar_numero_br(row["MOS"])
+            if mos > 1:  # trata caso venha 15 -> 0.15
+                mos = mos / 100
             ativos[ticker] = (fair_value, mos)
         except Exception as e:
-            log(f"Erro ao processar linha: {row} - {e}")
+            print(f"Erro ao processar linha: {row} - {e}")
     return ativos
 
 # ------------------------ Environment ------------------------ #
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-
-if not TELEGRAM_TOKEN or not CHAT_ID:
-    raise RuntimeError("TELEGRAM_TOKEN e CHAT_ID devem estar definidos nos secrets!")
 
 # ------------------------ Utils ------------------------ #
 def log(msg: str) -> None:
@@ -140,7 +139,6 @@ def check_assets() -> str:
     log(f"Checagem concluída. Resultado: {summary}")
     return summary
 
-# ------------------------ Execução direta ------------------------ #
 if __name__ == "__main__":
     log("Início do script (execução stand-alone).")
     try:
