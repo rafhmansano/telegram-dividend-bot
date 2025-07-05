@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 import os
 import datetime as dt
@@ -25,15 +24,13 @@ def limpar_numero_br(valor: float | str) -> float:
     if isinstance(valor, (int, float)):
         return float(valor)
     valor = str(valor).strip()
-    valor = valor.replace(',', '.')                # vírgula → ponto
-    valor = re.sub(r'[^0-9.\-]', '', valor)        # remove ruídos
-    if valor.count('.') > 1:                       # corrige múltiplos pontos
-        first, *rest = valor.split('.')
-        valor = first + '.' + ''.join(rest)
+    valor = valor.replace('%', '')
+    valor = valor.replace('.', '')
+    valor = valor.replace(',', '.')
     return float(valor)
 
 def carregar_ativos() -> Dict[str, Tuple[float, float]]:
-    print("=== VERSÃO NOVA ===")
+    print("=== VERSÃO CORRIGIDA ===")
     cred_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
     creds = Credentials.from_service_account_info(cred_dict, scopes=SCOPE)
     gc = gspread.authorize(creds)
@@ -46,19 +43,18 @@ def carregar_ativos() -> Dict[str, Tuple[float, float]]:
             ticker = str(row["Ticker"]).strip()
             fair_value = limpar_numero_br(row["FairValue"])
             mos = limpar_numero_br(row["MOS"])
-            if mos > 1:  # trata caso venha 15 -> 0.15
+            if mos > 1:  # trata caso venha 15 → 0.15
                 mos = mos / 100
             ativos[ticker] = (fair_value, mos)
         except Exception as e:
             print(f"Erro ao processar linha: {row} - {e}")
     return ativos
 
-# ------------------------ Environment ------------------------ #
+# ------------------------ Telegram ------------------------ #
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 API_URL = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
 
-# ------------------------ Utils ------------------------ #
 def log(msg: str) -> None:
     ts = dt.datetime.now(brt).strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{ts}] {msg}")
