@@ -33,6 +33,7 @@ def limpar_numero_br(valor: float | str) -> float:
     return float(valor)
 
 def carregar_ativos() -> Dict[str, Tuple[float, float]]:
+    print("=== VERSÃO NOVA ===")
     cred_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
     creds = Credentials.from_service_account_info(cred_dict, scopes=SCOPE)
     gc = gspread.authorize(creds)
