@@ -48,6 +48,7 @@ def carregar_ativos() -> Dict[str, Tuple[float, float]]:
             mos = limpar_numero_br(row["MOS"])
             if mos > 1:  # Trata 15 como 0.15
                 mos = mos / 100
+            print(f"[DEBUG] {ticker} → FairValue: {fair_value} | MOS: {mos}")
             ativos[ticker] = (fair_value, mos)
         except Exception as e:
             print(f"Erro ao processar linha: {row} - {e}")
