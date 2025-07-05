@@ -23,8 +23,10 @@ SPREADSHEET_NAME = "Valuation_ativos"
 SHEET_NAME = "Ativos"
 
 def carregar_ativos() -> Dict[str, Tuple[float, float]]:
-    def limpar_numero_br(valor_str: str) -> float:
-        clean = re.sub(r"[^0-9,.-]", "", valor_str)
+    def limpar_numero_br(valor: float | str) -> float:
+        if isinstance(valor, (int, float)):
+            return float(valor)
+        clean = re.sub(r"[^0-9,.-]", "", valor)
         if clean.count('-') > 1:
             clean = '-' + clean.replace('-', '')
         clean = clean.replace('.', '').replace(',', '.')
@@ -40,8 +42,9 @@ def carregar_ativos() -> Dict[str, Tuple[float, float]]:
     for row in data:
         try:
             ticker = row["Ticker"].strip()
-            fair_value = limpar_numero_br(str(row["FairValue"]))
-            mos = limpar_numero_br(str(row["MOS"])) / 100  # conversão correta da margem
+            fair_value = limpar_numero_br(row["FairValue"])
+            mos_raw = limpar_numero_br(row["MOS"])
+            mos = mos_raw if mos_raw < 1 else mos_raw / 100  # ✅ tratamento robusto
             ativos[ticker] = (fair_value, mos)
         except Exception as e:
             log(f"Erro ao processar linha: {row} - {e}")
