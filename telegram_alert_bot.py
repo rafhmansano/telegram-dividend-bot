@@ -24,8 +24,6 @@ def limpar_numero_br(valor: float | str) -> float:
         return float(valor)  # já é número real
     valor = str(valor).strip()
     valor = valor.replace('%', '')
-    
-    # Corrige "." de milhar e "," de decimal
     if ',' in valor and '.' in valor:
         valor = valor.replace('.', '').replace(',', '.')
     elif ',' in valor:
@@ -33,7 +31,7 @@ def limpar_numero_br(valor: float | str) -> float:
     return float(valor)
 
 def carregar_ativos() -> Dict[str, Tuple[float, float]]:
-    print("=== VERSÃO FINAL ===")
+    print("=== VERSÃO FINAL CORRIGIDA ===")
     cred_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
     creds = Credentials.from_service_account_info(cred_dict, scopes=SCOPE)
     gc = gspread.authorize(creds)
@@ -46,7 +44,7 @@ def carregar_ativos() -> Dict[str, Tuple[float, float]]:
             ticker = str(row["Ticker"]).strip()
             fair_value = limpar_numero_br(row["FairValue"])
             mos = limpar_numero_br(row["MOS"])
-            if mos > 1:  # Trata 15 como 0.15
+            if mos > 1:
                 mos = mos / 100
             print(f"[DEBUG] {ticker} → FairValue: {fair_value} | MOS: {mos}")
             ativos[ticker] = (fair_value, mos)
@@ -115,10 +113,10 @@ def check_assets() -> str:
     for tk, (fv, mos) in ativos.items():
         try:
             price = get_price(tk)
-            trigger = fv * (1 - mos)
+            trigger = fv  # fair value já tem margem embutida
             gap_pct = (trigger - price) / trigger * 100
 
-            log(f"{tk}: R$ {price:.2f} | Gatilho R$ {trigger:.2f} | Gap {gap_pct:+.1f}%")
+            log(f"{tk}: Preço=R$ {price:.2f}, FairValue=R$ {fv:.2f}, Gatilho=R$ {trigger:.2f}, Gap={gap_pct:+.1f}%, MOS={mos*100:.0f}%")
 
             if price <= trigger:
                 msg = (
