@@ -21,7 +21,7 @@ SHEET_NAME = "Ativos"
 
 def limpar_numero_br(valor: float | str) -> float:
     if isinstance(valor, float) or isinstance(valor, int):
-        return float(valor)  # já é número real
+        return float(valor)
     valor = str(valor).strip()
     valor = valor.replace('%', '')
     if ',' in valor and '.' in valor:
@@ -51,6 +51,12 @@ def carregar_ativos() -> Dict[str, Tuple[float, float]]:
         except Exception as e:
             print(f"Erro ao processar linha: {row} - {e}")
     return ativos
+
+# ------------------------ Utilitários ------------------------ #
+ATIVOS_INTERNACIONAIS = {"TFLO", "SCHB", "VNQ", "VTI", "SPY"}  # adicione conforme necessário
+
+def ticker_is_internacional(ticker: str) -> bool:
+    return ticker.upper() in ATIVOS_INTERNACIONAIS
 
 # ------------------------ Telegram ------------------------ #
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -83,7 +89,10 @@ def get_price_brapi(ticker: str) -> Optional[float]:
     return None
 
 def get_price_yahoo(ticker: str) -> Optional[float]:
-    tk = f"{ticker}.SA" if not ticker.endswith(".SA") else ticker
+    if ticker_is_internacional(ticker):
+        tk = ticker
+    else:
+        tk = f"{ticker}.SA" if not ticker.endswith(".SA") else ticker
     try:
         url = f"https://query1.finance.yahoo.com/v8/finance/chart/{tk}"
         headers = {"User-Agent": "Mozilla/5.0"}
@@ -113,7 +122,7 @@ def check_assets() -> str:
     for tk, (fv, mos) in ativos.items():
         try:
             price = get_price(tk)
-            trigger = fv  # fair value já tem margem embutida
+            trigger = fv
             gap_pct = (trigger - price) / trigger * 100
 
             log(f"{tk}: Preço=R$ {price:.2f}, FairValue=R$ {fv:.2f}, Gatilho=R$ {trigger:.2f}, Gap={gap_pct:+.1f}%, MOS={mos*100:.0f}%")
