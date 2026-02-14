@@ -1,9 +1,9 @@
 name: Dividend Alert Bot
 
 on:
-  schedule:
-    # 10:00, 13:00 e 16:00 BRT correspondem a 13:00, 16:00 e 19:00 UTC
-    - cron: '0 13,16,19 * * 1-5'
+  #  schedule:
+      ## 10:00, 13:00 e 16:00 BRT correspondem a 13:00, 16:00 e 19:00 UTC
+      #- cron: '0 13,16,19 * * 1-5'
   workflow_dispatch:
 
 jobs:
